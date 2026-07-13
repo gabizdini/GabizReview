@@ -1,0 +1,231 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
+import {
+  createReview,
+  updateReview,
+} from "@/services/reviews";
+import type {
+  Review,
+  CreateReviewInput,
+  UpdateReviewInput,
+} from "@/types/review";
+
+interface ReviewFormProps {
+  review: Review | null;
+  onSaved: () => void;
+  onCancel: () => void;
+}
+
+function buildForm(review: Review | null): CreateReviewInput {
+  if (review) {
+    return {
+      title: review.title,
+      bookTitle: review.bookTitle,
+      author: review.author,
+      content: review.content,
+      rating: review.rating,
+      coverUrl: review.coverUrl ?? "",
+      isFavorite: review.isFavorite,
+    };
+  }
+  return { title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false };
+}
+
+export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
+  const [form, setForm] = useState<CreateReviewInput>(() => buildForm(review));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    setSaving(true);
+
+    try {
+      if (review) {
+        const data: UpdateReviewInput = {
+          title: form.title,
+          bookTitle: form.bookTitle,
+          author: form.author,
+          content: form.content,
+          rating: form.rating,
+          coverUrl: form.coverUrl,
+          isFavorite: form.isFavorite,
+        };
+        await updateReview(review.id, data);
+      } else {
+        await createReview(form);
+      }
+      setSuccess(true);
+      if (!review) {
+        setForm({ title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false });
+      }
+      onSaved();
+    } catch {
+      setError("Erro ao salvar review. Tente novamente.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChange = (
+    field: keyof CreateReviewInput,
+    value: string | number | boolean
+  ) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <form
+      key={review?.id ?? "new"}
+      onSubmit={handleSubmit}
+      className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
+    >
+      <div className="space-y-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Título do Review
+          </label>
+          <input
+            type="text"
+            required
+            value={form.title}
+            onChange={(e) => handleChange("title", e.target.value)}
+            placeholder="Minha opinião sobre o livro"
+            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
+          />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Título do Livro
+            </label>
+            <input
+              type="text"
+              required
+              value={form.bookTitle}
+              onChange={(e) => handleChange("bookTitle", e.target.value)}
+              placeholder="O Hobbit"
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Autor</label>
+            <input
+              type="text"
+              required
+              value={form.author}
+              onChange={(e) => handleChange("author", e.target.value)}
+              placeholder="J.R.R. Tolkien"
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            URL da Capa (opcional)
+          </label>
+          <input
+            type="url"
+            value={form.coverUrl ?? ""}
+            onChange={(e) => handleChange("coverUrl", e.target.value)}
+            placeholder="https://exemplo.com/capa.jpg"
+            className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
+          />
+          {form.coverUrl && (
+            <img
+              src={form.coverUrl}
+              alt="Preview da capa"
+              className="mt-2 h-40 rounded-md border border-neutral-200 object-cover dark:border-neutral-700"
+            />
+          )}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Nota ({form.rating}/5)
+          </label>
+          <div className="flex gap-1">
+            {Array.from({ length: 5 }, (_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleChange("rating", i + 1)}
+                className={`text-xl transition ${
+                  i < form.rating
+                    ? "text-yellow-500"
+                    : "text-neutral-300 dark:text-neutral-600"
+                }`}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isFavorite"
+            checked={!!form.isFavorite}
+            onChange={(e) => handleChange("isFavorite", e.target.checked)}
+            className="h-4 w-4 rounded border-neutral-300 text-red-500 focus:ring-red-500"
+          />
+          <label htmlFor="isFavorite" className="text-sm font-medium">
+            ❤️ Marcar como queridinho
+          </label>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Conteúdo
+          </label>
+          <textarea
+            required
+            rows={8}
+            value={form.content}
+            onChange={(e) => handleChange("content", e.target.value)}
+            placeholder="Escreva sua review aqui..."
+            className="w-full resize-y rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
+          />
+        </div>
+      </div>
+
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {success && (
+        <p className="mt-3 text-sm text-green-600">
+          Review salvo com sucesso!
+        </p>
+      )}
+
+      <div className="mt-4 flex gap-3">
+        <button
+          type="submit"
+          disabled={saving}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+        >
+          {saving
+            ? "Salvando..."
+            : review
+              ? "Salvar Alterações"
+              : "Criar Review"}
+        </button>
+
+        {review && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          >
+            Cancelar
+          </button>
+        )}
+      </div>
+    </form>
+  );
+}
