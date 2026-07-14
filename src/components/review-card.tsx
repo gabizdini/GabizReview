@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import type { Review } from "@/types/review";
 import { RatingStars } from "./rating-stars";
 
@@ -30,7 +31,7 @@ export function ReviewCard({ review }: { review: Review }) {
           </h3>
           <div className="flex shrink-0 items-center gap-1">
             {review.isFavorite && (
-              <span className="text-sm text-red-500" title="Queridinho">❤️</span>
+              <Heart className="h-4 w-4 fill-red-500 text-red-500" aria-label="Queridinho" />
             )}
             <RatingStars rating={review.rating} />
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Heart, Star } from "lucide-react";
 import {
   createReview,
   updateReview,
@@ -155,13 +156,15 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
                 key={i}
                 type="button"
                 onClick={() => handleChange("rating", i + 1)}
-                className={`text-xl transition ${
-                  i < form.rating
-                    ? "text-yellow-500"
-                    : "text-neutral-300 dark:text-neutral-600"
-                }`}
+                className="transition"
               >
-                ★
+                <Star
+                  className={`h-6 w-6 ${
+                    i < form.rating
+                      ? "fill-yellow-500 text-yellow-500"
+                      : "fill-neutral-200 text-neutral-200 dark:fill-neutral-700 dark:text-neutral-700"
+                  }`}
+                />
               </button>
             ))}
           </div>
@@ -175,8 +178,9 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
             onChange={(e) => handleChange("isFavorite", e.target.checked)}
             className="h-4 w-4 rounded border-neutral-300 text-red-500 focus:ring-red-500"
           />
-          <label htmlFor="isFavorite" className="text-sm font-medium">
-            ❤️ Marcar como queridinho
+          <label htmlFor="isFavorite" className="flex items-center gap-1.5 text-sm font-medium">
+            <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+            Marcar como queridinho
           </label>
         </div>
 

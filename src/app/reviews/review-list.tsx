@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Search, Heart } from "lucide-react";
 import { getAllReviews } from "@/services/reviews";
 import { ReviewCard } from "@/components/review-card";
 import type { Review } from "@/types/review";
@@ -107,9 +108,7 @@ export function ReviewList() {
     <div>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
-            🔍
-          </span>
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
             placeholder="Buscar por título, autor ou review..."
@@ -153,7 +152,8 @@ export function ReviewList() {
               : "border-neutral-300 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
           }`}
         >
-          ❤️ Queridinhos
+          <Heart className={`h-4 w-4 ${favoritesOnly ? "fill-red-500" : ""}`} />
+          Queridinhos
         </button>
       </div>
 
