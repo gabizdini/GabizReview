@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getAllReviews } from "@/services/reviews";
 import { ReviewCard } from "@/components/review-card";
 import type { Review } from "@/types/review";
@@ -8,14 +9,22 @@ import type { Review } from "@/types/review";
 type SortOption = "newest" | "oldest" | "highest" | "lowest";
 
 export function ReviewList() {
+  const searchParams = useSearchParams();
+
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [search, setSearch] = useState("");
-  const [ratingFilter, setRatingFilter] = useState<number | "all">("all");
-  const [sort, setSort] = useState<SortOption>("newest");
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [search, setSearch] = useState(searchParams.get("q") ?? "");
+  const [ratingFilter, setRatingFilter] = useState<number | "all">(
+    searchParams.get("rating") ? Number(searchParams.get("rating")) : "all"
+  );
+  const [sort, setSort] = useState<SortOption>(
+    (searchParams.get("sort") as SortOption) ?? "newest"
+  );
+  const [favoritesOnly, setFavoritesOnly] = useState(
+    searchParams.get("fav") === "1"
+  );
 
   useEffect(() => {
     getAllReviews()
@@ -23,6 +32,17 @@ export function ReviewList() {
       .catch(() => setError("Erro ao carregar reviews."))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set("q", search);
+    if (ratingFilter !== "all") params.set("rating", String(ratingFilter));
+    if (sort !== "newest") params.set("sort", sort);
+    if (favoritesOnly) params.set("fav", "1");
+
+    const qs = params.toString();
+    window.history.replaceState(null, "", qs ? `?${qs}` : "/reviews");
+  }, [search, ratingFilter, sort, favoritesOnly]);
 
   const filtered = useMemo(() => {
     const term = search.toLowerCase();

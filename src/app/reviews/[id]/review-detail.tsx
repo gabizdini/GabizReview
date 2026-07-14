@@ -51,7 +51,7 @@ export function ReviewDetail({ id }: { id: string }) {
 
   return (
     <div className="py-8">
-      <Link href="/" className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-600">
+      <Link href="/reviews" className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-600">
         ← Voltar
       </Link>
 
