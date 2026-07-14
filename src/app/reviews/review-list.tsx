@@ -56,7 +56,7 @@ export function ReviewList() {
         r.title.toLowerCase().includes(term);
 
       const matchesRating =
-        ratingFilter === "all" || r.rating === ratingFilter;
+        ratingFilter === "all" || (r.rating >= ratingFilter && r.rating < ratingFilter + 1);
 
       const matchesFavorite = !favoritesOnly || r.isFavorite;
 

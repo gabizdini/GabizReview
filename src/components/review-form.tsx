@@ -150,23 +150,36 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
           <label className="mb-1 block text-sm font-medium">
             Nota ({form.rating}/5)
           </label>
-          <div className="flex gap-1">
-            {Array.from({ length: 5 }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => handleChange("rating", i + 1)}
-                className="transition"
-              >
-                <Star
-                  className={`h-6 w-6 ${
-                    i < form.rating
-                      ? "fill-yellow-500 text-yellow-500"
-                      : "fill-neutral-200 text-neutral-200 dark:fill-neutral-700 dark:text-neutral-700"
-                  }`}
-                />
-              </button>
-            ))}
+          <div className="flex items-center gap-1">
+            {Array.from({ length: 5 }, (_, i) => {
+              const starValue = i + 1;
+              const isFull = i < Math.floor(form.rating);
+              const isHalf = !isFull && i === Math.floor(form.rating) && form.rating % 1 !== 0;
+
+              const handleClick = () => {
+                if (form.rating === starValue) {
+                  handleChange("rating", starValue - 0.5);
+                } else {
+                  handleChange("rating", starValue);
+                }
+              };
+
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={handleClick}
+                  className="relative h-6 w-6 shrink-0 transition"
+                >
+                  <Star className="absolute inset-0 h-6 w-6 fill-neutral-200 text-neutral-200 dark:fill-neutral-700 dark:text-neutral-700" />
+                  {(isFull || isHalf) && (
+                    <span className="absolute inset-0 overflow-hidden" style={{ width: isHalf ? "50%" : "100%" }}>
+                      <Star className="h-6 w-6 fill-yellow-500 text-yellow-500" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
