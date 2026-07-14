@@ -94,10 +94,10 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
               )}
               <div className="min-w-0 flex-1">
                 <h3 className="flex items-center gap-1.5 truncate font-medium">
-                  {review.bookTitle}
                   {review.isFavorite && (
                     <Heart className="h-4 w-4 shrink-0 fill-red-500 text-red-500" />
                   )}
+                  {review.bookTitle}
                 </h3>
                 <p className="text-sm text-neutral-500">{review.author}</p>
                 <div className="mt-1 flex items-center gap-2 whitespace-nowrap">
