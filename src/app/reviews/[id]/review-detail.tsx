@@ -74,15 +74,19 @@ export function ReviewDetail({ id }: { id: string }) {
             </div>
           </header>
 
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold">{review.title}</h2>
-          </div>
+          {review.title && (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold">{review.title}</h2>
+            </div>
+          )}
 
-          <div className="space-y-4 text-neutral-700 dark:text-neutral-300">
-            {review.content.split("\n").map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))}
-          </div>
+          {review.content && (
+            <div className="space-y-4 text-neutral-700 dark:text-neutral-300">
+              {review.content.split("\n").map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

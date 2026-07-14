@@ -87,11 +87,10 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
       <div className="space-y-4">
         <div>
           <label className="mb-1 block text-sm font-medium">
-            Título do Review
+            Título do Review (opcional)
           </label>
           <input
             type="text"
-            required
             value={form.title}
             onChange={(e) => handleChange("title", e.target.value)}
             placeholder="Minha opinião sobre o livro"
@@ -102,7 +101,7 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium">
-              Título do Livro
+              Título do Livro <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -114,7 +113,7 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Autor</label>
+            <label className="mb-1 block text-sm font-medium">Autor <span className="text-red-500">*</span></label>
             <input
               type="text"
               required
@@ -183,10 +182,9 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
 
         <div>
           <label className="mb-1 block text-sm font-medium">
-            Conteúdo
+            Conteúdo (opcional)
           </label>
           <textarea
-            required
             rows={8}
             value={form.content}
             onChange={(e) => handleChange("content", e.target.value)}

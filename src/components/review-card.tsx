@@ -36,9 +36,11 @@ export function ReviewCard({ review }: { review: Review }) {
           </div>
         </div>
         <p className="text-sm text-neutral-500">{review.author}</p>
-        <p className="mt-2 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
-          {review.title}
-        </p>
+        {review.title && (
+          <p className="mt-2 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
+            {review.title}
+          </p>
+        )}
         {formatted && (
           <time className="mt-2 block text-xs text-neutral-400">{formatted}</time>
         )}
