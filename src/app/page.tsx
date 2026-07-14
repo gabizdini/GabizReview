@@ -8,7 +8,7 @@ export default function HomePage() {
       </h1>
       <p className="mt-4 max-w-md text-lg text-neutral-500">
         Um espaço pessoal onde eu compartilho minhas leituras e impressões
-        sobre livros que marcaram minha vida.
+        sobre livros :3
       </p>
       <Link
         href="/reviews"
