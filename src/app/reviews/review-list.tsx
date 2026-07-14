@@ -130,7 +130,7 @@ export function ReviewList() {
           className={`flex items-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-sm font-medium transition ${
             favoritesOnly
               ? "border-red-300 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950"
-              : "border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
+              : "border-neutral-300 bg-white text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
           }`}
         >
           ❤️ Queridinhos

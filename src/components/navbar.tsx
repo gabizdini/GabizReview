@@ -21,7 +21,7 @@ export function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4 text-sm">
-          <Link href="/" className={isActive("/")}>
+          <Link href="/reviews" className={isActive("/reviews")}>
             Reviews
           </Link>
           {user ? (
