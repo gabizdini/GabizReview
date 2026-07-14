@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import { getReviewById } from "@/services/reviews";
 import { RatingStars } from "@/components/rating-stars";
 import type { Review } from "@/types/review";
@@ -69,6 +70,9 @@ export function ReviewDetail({ id }: { id: string }) {
             <h1 className="text-3xl font-bold tracking-tight">{review.bookTitle}</h1>
             <p className="mt-1 text-lg text-neutral-500">{review.author}</p>
             <div className="mt-3 flex items-center gap-3">
+              {review.isFavorite && (
+                <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+              )}
               <RatingStars rating={review.rating} />
               {formatted && <time className="text-sm text-neutral-400">{formatted}</time>}
             </div>
