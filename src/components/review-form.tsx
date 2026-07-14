@@ -218,15 +218,13 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
               : "Criar Review"}
         </button>
 
-        {review && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            Cancelar
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+        >
+          Cancelar
+        </button>
       </div>
     </form>
   );

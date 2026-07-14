@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Heart } from "lucide-react";
 import { getAllReviews, deleteReview } from "@/services/reviews";
 import { RatingStars } from "@/components/rating-stars";
 import type { Review } from "@/types/review";
@@ -95,6 +96,9 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
                 <h3 className="truncate font-medium">{review.bookTitle}</h3>
                 <p className="text-sm text-neutral-500">{review.author}</p>
                 <div className="mt-1 flex items-center gap-2">
+                  {review.isFavorite && (
+                    <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                  )}
                   <RatingStars rating={review.rating} />
                   {formatted && (
                     <time className="text-xs text-neutral-400">{formatted}</time>
