@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, ArrowRight } from "lucide-react";
 import type { Review } from "@/types/review";
 import { RatingStars } from "./rating-stars";
 
@@ -45,6 +45,9 @@ export function ReviewCard({ review }: { review: Review }) {
           {formatted && (
             <time className="mt-2 block text-xs text-neutral-400">{formatted}</time>
           )}
+          <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-blue-600 transition-opacity dark:text-blue-400 max-sm:opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+            Ver mais <ArrowRight className="h-3 w-3" />
+          </span>
         </div>
       </div>
     </Link>

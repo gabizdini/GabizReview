@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Heart, Star } from "lucide-react";
 import {
   createReview,
   updateReview,
 } from "@/services/reviews";
+import { getAllCollections } from "@/services/collections";
 import type {
   Review,
   CreateReviewInput,
   UpdateReviewInput,
 } from "@/types/review";
+import type { Collection } from "@/types/collection";
 
 interface ReviewFormProps {
   review: Review | null;
@@ -28,9 +30,10 @@ function buildForm(review: Review | null): CreateReviewInput {
       rating: review.rating,
       coverUrl: review.coverUrl ?? "",
       isFavorite: review.isFavorite,
+      collectionId: review.collectionId ?? "",
     };
   }
-  return { title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false };
+  return { title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, collectionId: "" };
 }
 
 export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
@@ -38,6 +41,13 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [collections, setCollections] = useState<Collection[]>([]);
+
+  useEffect(() => {
+    getAllCollections()
+      .then(setCollections)
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -55,6 +65,7 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
           rating: form.rating,
           coverUrl: form.coverUrl,
           isFavorite: form.isFavorite,
+          collectionId: form.collectionId || undefined,
         };
         await updateReview(review.id, data);
       } else {
@@ -62,7 +73,7 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
       }
       setSuccess(true);
       if (!review) {
-        setForm({ title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false });
+        setForm({ title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, collectionId: "" });
       }
       onSaved();
     } catch {
@@ -196,6 +207,26 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
             Marcar como queridinho
           </label>
         </div>
+
+        {collections.length > 0 && (
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Coleção (opcional)
+            </label>
+            <select
+              value={form.collectionId ?? ""}
+              onChange={(e) => handleChange("collectionId", e.target.value)}
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
+            >
+              <option value="">Nenhuma coleção</option>
+              {collections.map((col) => (
+                <option key={col.id} value={col.id}>
+                  {col.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="mb-1 block text-sm font-medium">

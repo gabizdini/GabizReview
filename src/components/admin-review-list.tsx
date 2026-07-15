@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { getAllReviews, deleteReview } from "@/services/reviews";
+import { getAllCollections } from "@/services/collections";
 import { RatingStars } from "@/components/rating-stars";
 import type { Review } from "@/types/review";
+import type { Collection } from "@/types/collection";
 
 interface AdminReviewListProps {
   onEdit: (review: Review) => void;
@@ -13,15 +15,17 @@ interface AdminReviewListProps {
 
 export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    getAllReviews()
-      .then((data) => {
+    Promise.all([getAllReviews(), getAllCollections()])
+      .then(([reviewsData, collectionsData]) => {
         if (!cancelled) {
-          setReviews(data);
+          setReviews(reviewsData);
+          setCollections(collectionsData);
           setLoading(false);
         }
       })
@@ -44,6 +48,12 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
     } finally {
       setDeleting(null);
     }
+  };
+
+  const getCollectionName = (collectionId?: string) => {
+    if (!collectionId) return null;
+    const col = collections.find((c) => c.id === collectionId);
+    return col?.name ?? null;
   };
 
   if (loading) {
@@ -104,6 +114,11 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
                   <RatingStars rating={review.rating} />
                   {formatted && (
                     <time className="text-xs text-neutral-400">{formatted}</time>
+                  )}
+                  {getCollectionName(review.collectionId) && (
+                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
+                      {getCollectionName(review.collectionId)}
+                    </span>
                   )}
                 </div>
               </div>
