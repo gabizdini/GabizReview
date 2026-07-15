@@ -98,10 +98,10 @@ export function Navbar() {
             </div>
 
             <div className="px-5 py-4">
-              <Link href="/reviews" className={mobileItemClass}>
+              <Link href="/reviews" className={mobileItemClass} onClick={() => setMenuOpen(false)}>
                 Reviews
               </Link>
-              <Link href="/collections" className={mobileItemClass}>
+              <Link href="/collections" className={mobileItemClass} onClick={() => setMenuOpen(false)}>
                 Coleções
               </Link>
               <a
@@ -109,6 +109,7 @@ export function Navbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 py-3 text-neutral-400 transition hover:text-pink-500"
+                onClick={() => setMenuOpen(false)}
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
@@ -119,18 +120,18 @@ export function Navbar() {
               <div className="my-3 border-t border-neutral-200 dark:border-neutral-700" />
               {user ? (
                 <>
-                  <Link href="/admin" className={mobileItemClass}>
+                  <Link href="/admin" className={mobileItemClass} onClick={() => setMenuOpen(false)}>
                     Admin
                   </Link>
                   <button
-                    onClick={logout}
+                    onClick={() => { setMenuOpen(false); logout(); }}
                     className={`${mobileItemClass} w-full text-left`}
                   >
                     Sair
                   </button>
                 </>
               ) : (
-                <Link href="/admin" className={mobileItemClass}>
+                <Link href="/admin" className={mobileItemClass} onClick={() => setMenuOpen(false)}>
                   Entrar
                 </Link>
               )}

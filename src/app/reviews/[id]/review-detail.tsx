@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { getReviewById } from "@/services/reviews";
@@ -9,6 +10,7 @@ import { LikeButton } from "@/components/LikeButton";
 import type { Review } from "@/types/review";
 
 export function ReviewDetail({ id }: { id: string }) {
+  const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,9 +55,12 @@ export function ReviewDetail({ id }: { id: string }) {
 
   return (
     <div className="py-8">
-      <Link href="/reviews" className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-600">
+      <button
+        onClick={() => router.back()}
+        className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-600"
+      >
         ← Voltar
-      </Link>
+      </button>
 
       <div className="flex flex-col gap-6 sm:flex-row">
         {review.coverUrl && (
