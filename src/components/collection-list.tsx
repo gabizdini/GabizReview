@@ -88,7 +88,13 @@ function SortableCollectionItem({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-medium">{collection.name}</h3>
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block h-3 w-3 shrink-0 rounded-full"
+              style={{ backgroundColor: collection.color ?? "#6B7280" }}
+            />
+            <h3 className="truncate font-medium">{collection.name}</h3>
+          </div>
           {collection.description && (
             <p className="truncate text-sm text-neutral-500">
               {collection.description}

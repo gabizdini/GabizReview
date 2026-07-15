@@ -74,7 +74,10 @@ export function CollectionDetail({ id }: { id: string }) {
         ← Voltar
       </Link>
 
-      <header className="mb-8">
+      <header
+        className="mb-8 rounded-t-lg border-l-4 border-t-4 pt-4"
+        style={{ borderColor: collection.color ?? "#6B7280" }}
+      >
         <div className="flex items-start gap-4">
           {collection.coverUrl ? (
             <img

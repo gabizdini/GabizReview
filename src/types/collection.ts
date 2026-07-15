@@ -5,6 +5,7 @@ export interface Collection {
   name: string;
   description?: string;
   coverUrl?: string;
+  color?: string;
   order: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;

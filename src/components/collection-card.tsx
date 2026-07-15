@@ -10,10 +10,13 @@ interface CollectionCardProps {
 }
 
 export function CollectionCard({ collection, reviewCount }: CollectionCardProps) {
+  const borderColor = collection.color ?? "#6B7280";
+
   return (
     <Link
       href={`/collections/${collection.id}`}
       className="group relative block overflow-hidden rounded-lg border border-neutral-200 bg-white transition hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+      style={{ borderLeftColor: borderColor, borderLeftWidth: "4px" }}
     >
       {collection.coverUrl ? (
         <img

@@ -23,10 +23,11 @@ function buildForm(collection: Collection | null): CreateCollectionInput {
       name: collection.name,
       description: collection.description ?? "",
       coverUrl: collection.coverUrl ?? "",
+      color: collection.color ?? "#6B7280",
       order: collection.order,
     };
   }
-  return { name: "", description: "", coverUrl: "", order: 0 };
+  return { name: "", description: "", coverUrl: "", color: "#6B7280", order: 0 };
 }
 
 export function CollectionForm({
@@ -53,6 +54,7 @@ export function CollectionForm({
           name: form.name,
           description: form.description,
           coverUrl: form.coverUrl,
+          color: form.color,
           order: form.order,
         };
         await updateCollection(collection.id, data);
@@ -61,7 +63,7 @@ export function CollectionForm({
       }
       setSuccess(true);
       if (!collection) {
-        setForm({ name: "", description: "", coverUrl: "", order: 0 });
+        setForm({ name: "", description: "", coverUrl: "", color: "#6B7280", order: 0 });
       }
       onSaved();
     } catch {
@@ -130,6 +132,21 @@ export function CollectionForm({
               className="mt-2 h-32 rounded-md border border-neutral-200 object-cover dark:border-neutral-700"
             />
           )}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Cor da Coleção (opcional)
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={form.color ?? "#6B7280"}
+              onChange={(e) => handleChange("color", e.target.value)}
+              className="h-10 w-10 cursor-pointer rounded-full border-2 border-neutral-300 dark:border-neutral-700"
+            />
+            <span className="text-sm text-neutral-500">{form.color ?? "#6B7280"}</span>
+          </div>
         </div>
       </div>
 
