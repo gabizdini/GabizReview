@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { getReviewById } from "@/services/reviews";
 import { RatingStars } from "@/components/rating-stars";
+import { LikeButton } from "@/components/LikeButton";
 import type { Review } from "@/types/review";
 
 export function ReviewDetail({ id }: { id: string }) {
@@ -74,6 +75,7 @@ export function ReviewDetail({ id }: { id: string }) {
                 <Heart className="h-5 w-5 fill-red-500 text-red-500" />
               )}
               <RatingStars rating={review.rating} />
+              <LikeButton reviewId={review.id} initialLikes={review.likesCount} />
               {formatted && <time className="text-sm text-neutral-400">{formatted}</time>}
             </div>
           </header>

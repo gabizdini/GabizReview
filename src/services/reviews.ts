@@ -1,5 +1,6 @@
 import {
   collection,
+  increment,
   doc,
   getDoc,
   getDocs,
@@ -51,4 +52,28 @@ export async function updateReview(
 
 export async function deleteReview(id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
+}
+
+export async function likeReview(reviewId: string): Promise<void> {
+  try {
+    const reviewRef = doc(db, COLLECTION, reviewId);
+    await updateDoc(reviewRef, {
+      likesCount: increment(1),
+    });
+  } catch (error) {
+    console.error("Erro ao curtir review:", error);
+    throw error;
+  }
+}
+
+export async function unlikeReview(reviewId: string): Promise<void> {
+  try {
+    const reviewRef = doc(db, COLLECTION, reviewId);
+    await updateDoc(reviewRef, {
+      likesCount: increment(-1),
+    });
+  } catch (error) {
+    console.error("Erro ao descurtir review:", error);
+    throw error;
+  }
 }
