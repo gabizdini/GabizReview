@@ -35,7 +35,7 @@ export default function CollectionsPage() {
 
   if (loading) {
     return (
-      <div className="py-8">
+      <div className="py-4">
         <h1 className="mb-6 text-2xl font-bold tracking-tight">Coleções</h1>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -50,12 +50,12 @@ export default function CollectionsPage() {
   }
 
   if (error) {
-    return <p className="py-8 text-center text-red-500">{error}</p>;
+    return <p className="py-4 text-center text-red-500">{error}</p>;
   }
 
   if (collections.length === 0) {
     return (
-      <div className="py-8">
+      <div className="py-4">
         <h1 className="mb-6 text-2xl font-bold tracking-tight">Coleções</h1>
         <p className="text-center text-neutral-400">
           Nenhuma coleção encontrada.
@@ -65,7 +65,7 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-4">
       <h1 className="mb-6 text-2xl font-bold tracking-tight">Coleções</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {collections.map((col) => (

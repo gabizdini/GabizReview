@@ -1,15 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, ArrowRight } from "lucide-react";
+import { Heart, ArrowRight, Folder } from "lucide-react";
+import { getAllCollections } from "@/services/collections";
 import type { Review } from "@/types/review";
+import type { Collection } from "@/types/collection";
 import { RatingStars } from "./rating-stars";
 
 export function ReviewCard({ review }: { review: Review }) {
+  const [collectionName, setCollectionName] = useState<string | null>(null);
   const date = review.createdAt?.toDate?.();
   const formatted = date
     ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).format(date)
     : "";
+
+  useEffect(() => {
+    if (!review.collectionId) return;
+    getAllCollections()
+      .then((cols) => {
+        const col = cols.find((c) => c.id === review.collectionId);
+        if (col) setCollectionName(col.name);
+      })
+      .catch(() => {});
+  }, [review.collectionId]);
 
   return (
     <Link
@@ -37,6 +51,12 @@ export function ReviewCard({ review }: { review: Review }) {
           <div className="mt-1.5">
             <RatingStars rating={review.rating} />
           </div>
+          {collectionName && (
+            <span className="mt-2 inline-flex items-center gap-1 rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
+              <Folder className="h-3 w-3" />
+              {collectionName}
+            </span>
+          )}
           {review.title && (
             <p className="mt-2 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
               {review.title}

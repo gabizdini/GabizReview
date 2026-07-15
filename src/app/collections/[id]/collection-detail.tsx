@@ -36,7 +36,7 @@ export function CollectionDetail({ id }: { id: string }) {
 
   if (loading) {
     return (
-      <div className="py-8">
+      <div className="py-4">
         <div className="mb-6 h-8 w-1/3 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
         <div className="mb-4 h-4 w-1/2 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -66,7 +66,7 @@ export function CollectionDetail({ id }: { id: string }) {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-4">
       <Link
         href="/collections"
         className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-600"
@@ -102,7 +102,7 @@ export function CollectionDetail({ id }: { id: string }) {
       </header>
 
       {reviews.length === 0 ? (
-        <p className="py-8 text-center text-neutral-400">
+        <p className="py-4 text-center text-neutral-400">
           Nenhum review nesta coleção.
         </p>
       ) : (

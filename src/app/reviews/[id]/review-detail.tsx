@@ -3,21 +3,29 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, Folder } from "lucide-react";
 import { getReviewById } from "@/services/reviews";
+import { getCollectionById } from "@/services/collections";
 import { RatingStars } from "@/components/rating-stars";
 import { LikeButton } from "@/components/LikeButton";
 import type { Review } from "@/types/review";
+import type { Collection } from "@/types/collection";
 
 export function ReviewDetail({ id }: { id: string }) {
   const router = useRouter();
   const [review, setReview] = useState<Review | null>(null);
+  const [collection, setCollection] = useState<Collection | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getReviewById(id)
-      .then(setReview)
+      .then((r) => {
+        setReview(r);
+        if (r?.collectionId) {
+          getCollectionById(r.collectionId).then(setCollection);
+        }
+      })
       .catch(() => setError("Review não encontrado."))
       .finally(() => setLoading(false));
   }, [id]);
@@ -54,7 +62,7 @@ export function ReviewDetail({ id }: { id: string }) {
     : "";
 
   return (
-    <div className="py-8">
+    <div className="py-4">
       <button
         onClick={() => router.back()}
         className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-600"
@@ -75,7 +83,7 @@ export function ReviewDetail({ id }: { id: string }) {
           <header className="mb-6">
             <h1 className="text-3xl font-bold tracking-tight">{review.bookTitle}</h1>
             <p className="mt-1 text-lg text-neutral-500">{review.author}</p>
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
               {review.isFavorite && (
                 <Heart className="h-5 w-5 fill-red-500 text-red-500" />
               )}
@@ -83,6 +91,15 @@ export function ReviewDetail({ id }: { id: string }) {
               <LikeButton reviewId={review.id} initialLikes={review.likesCount} />
               {formatted && <time className="text-sm text-neutral-400">{formatted}</time>}
             </div>
+            {collection && (
+              <Link
+                href={`/collections/${collection.id}`}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-neutral-100 px-3 py-1.5 text-sm text-neutral-600 transition hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
+              >
+                <Folder className="h-4 w-4" />
+                {collection.name}
+              </Link>
+            )}
           </header>
 
           {review.title && (

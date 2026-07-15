@@ -3,7 +3,7 @@ import { ReviewList } from "./review-list";
 
 export default function ReviewsPage() {
   return (
-    <div>
+    <div className="py-4">
       <header className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Reviews</h1>
         <p className="mt-1 text-neutral-500">
