@@ -98,14 +98,14 @@ export function CollectionForm({
             required
             value={form.name}
             onChange={(e) => handleChange("name", e.target.value)}
-            placeholder="Ex: Ficcao Cientifica"
+            placeholder="Ex: Ficção Científica"
             className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
           />
         </div>
 
         <div>
           <label className="mb-1 block text-sm font-medium">
-            Descricao (opcional)
+            Descrição (opcional)
           </label>
           <textarea
             rows={3}
@@ -182,7 +182,7 @@ export function CollectionForm({
           {saving
             ? "Salvando..."
             : collection
-              ? "Salvar Alteracoes"
+              ? "Salvar Alterações"
               : "Criar Coleção"}
         </button>
 

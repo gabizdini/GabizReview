@@ -115,11 +115,14 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
                   {formatted && (
                     <time className="text-xs text-neutral-400">{formatted}</time>
                   )}
-                  {getCollectionName(review.collectionId) && (
-                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
-                      {getCollectionName(review.collectionId)}
-                    </span>
-                  )}
+                  {(() => {
+                    const name = getCollectionName(review.collectionId);
+                    return name ? (
+                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
+                        {name}
+                      </span>
+                    ) : null;
+                  })()}
                 </div>
               </div>
             </div>

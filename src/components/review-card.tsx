@@ -1,29 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Heart, ArrowRight, Folder } from "lucide-react";
-import { getAllCollections } from "@/services/collections";
 import type { Review } from "@/types/review";
-import type { Collection } from "@/types/collection";
 import { RatingStars } from "./rating-stars";
 
-export function ReviewCard({ review }: { review: Review }) {
-  const [collectionName, setCollectionName] = useState<string | null>(null);
+export function ReviewCard({
+  review,
+  collectionsMap,
+}: {
+  review: Review;
+  collectionsMap?: Record<string, string>;
+}) {
   const date = review.createdAt?.toDate?.();
   const formatted = date
     ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).format(date)
     : "";
 
-  useEffect(() => {
-    if (!review.collectionId) return;
-    getAllCollections()
-      .then((cols) => {
-        const col = cols.find((c) => c.id === review.collectionId);
-        if (col) setCollectionName(col.name);
-      })
-      .catch(() => {});
-  }, [review.collectionId]);
+  const collectionName = review.collectionId
+    ? collectionsMap?.[review.collectionId] ?? null
+    : null;
 
   return (
     <Link

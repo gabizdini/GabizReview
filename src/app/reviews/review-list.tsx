@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, Heart } from "lucide-react";
 import { getAllReviews } from "@/services/reviews";
+import { getAllCollections } from "@/services/collections";
 import { ReviewCard } from "@/components/review-card";
 import type { Review } from "@/types/review";
 
@@ -13,6 +14,7 @@ export function ReviewList() {
   const searchParams = useSearchParams();
 
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [collectionsMap, setCollectionsMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +30,13 @@ export function ReviewList() {
   );
 
   useEffect(() => {
-    getAllReviews()
-      .then(setReviews)
+    Promise.all([getAllReviews(), getAllCollections()])
+      .then(([reviewsData, cols]) => {
+        setReviews(reviewsData);
+        const map: Record<string, string> = {};
+        cols.forEach((c) => { map[c.id] = c.name; });
+        setCollectionsMap(map);
+      })
       .catch(() => setError("Erro ao carregar reviews."))
       .finally(() => setLoading(false));
   }, []);
@@ -164,7 +171,7 @@ export function ReviewList() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((r) => (
-            <ReviewCard key={r.id} review={r} />
+            <ReviewCard key={r.id} review={r} collectionsMap={collectionsMap} />
           ))}
         </div>
       )}

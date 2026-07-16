@@ -6,6 +6,7 @@ import { Folder } from "lucide-react";
 import {
   getCollectionById,
   getReviewsByCollectionId,
+  getAllCollections,
 } from "@/services/collections";
 import { ReviewCard } from "@/components/review-card";
 import type { Collection } from "@/types/collection";
@@ -14,6 +15,7 @@ import type { Review } from "@/types/review";
 export function CollectionDetail({ id }: { id: string }) {
   const [collection, setCollection] = useState<Collection | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [collectionsMap, setCollectionsMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,13 +23,17 @@ export function CollectionDetail({ id }: { id: string }) {
     Promise.all([
       getCollectionById(id),
       getReviewsByCollectionId(id),
+      getAllCollections(),
     ])
-      .then(([col, revs]) => {
+      .then(([col, revs, cols]) => {
         if (!col) {
           setError("Coleção não encontrada.");
         } else {
           setCollection(col);
           setReviews(revs);
+          const map: Record<string, string> = {};
+          cols.forEach((c) => { map[c.id] = c.name; });
+          setCollectionsMap(map);
         }
       })
       .catch(() => setError("Erro ao carregar coleção."))
@@ -111,7 +117,7 @@ export function CollectionDetail({ id }: { id: string }) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {reviews.map((r) => (
-            <ReviewCard key={r.id} review={r} />
+            <ReviewCard key={r.id} review={r} collectionsMap={collectionsMap} />
           ))}
         </div>
       )}

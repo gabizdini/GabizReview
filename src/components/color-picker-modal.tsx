@@ -120,7 +120,7 @@ export function ColorPickerModal({
     if (typingRef.current) clearTimeout(typingRef.current);
     typingRef.current = setTimeout(() => setIsTyping(false), 800);
     if (clean.length === 6 && isValidHex(`#${clean}`)) {
-      const hsv = hexToHsva(`#${clean}`);
+      const hsv = hexToHsv(`#${clean}`);
       setHue(hsv.h);
       setSat(hsv.s);
       setBright(hsv.v);

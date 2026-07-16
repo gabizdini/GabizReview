@@ -7,7 +7,7 @@ import { Heart, Folder } from "lucide-react";
 import { getReviewById } from "@/services/reviews";
 import { getCollectionById } from "@/services/collections";
 import { RatingStars } from "@/components/rating-stars";
-import { LikeButton } from "@/components/LikeButton";
+import { LikeButton } from "@/components/like-button";
 import type { Review } from "@/types/review";
 import type { Collection } from "@/types/collection";
 

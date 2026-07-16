@@ -63,13 +63,18 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
           author: form.author,
           content: form.content,
           rating: form.rating,
-          coverUrl: form.coverUrl,
+          coverUrl: form.coverUrl || undefined,
           isFavorite: form.isFavorite,
           collectionId: form.collectionId || undefined,
         };
         await updateReview(review.id, data);
       } else {
-        await createReview(form);
+        const data: CreateReviewInput = {
+          ...form,
+          coverUrl: form.coverUrl || undefined,
+          collectionId: form.collectionId || undefined,
+        };
+        await createReview(data);
       }
       setSuccess(true);
       if (!review) {
