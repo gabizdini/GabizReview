@@ -5,6 +5,7 @@ import {
   createCollection,
   updateCollection,
 } from "@/services/collections";
+import { ColorPickerModal } from "./color-picker-modal";
 import type {
   Collection,
   CreateCollectionInput,
@@ -41,6 +42,7 @@ export function CollectionForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -138,15 +140,29 @@ export function CollectionForm({
           <label className="mb-1 block text-sm font-medium">
             Cor da Coleção (opcional)
           </label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              value={form.color ?? "#6B7280"}
-              onChange={(e) => handleChange("color", e.target.value)}
-              className="h-10 w-10 cursor-pointer rounded-full border-2 border-neutral-300 dark:border-neutral-700"
+          <button
+            type="button"
+            onClick={() => setIsColorPickerOpen(true)}
+            className="flex items-center gap-3 rounded-lg border border-neutral-300 bg-white px-3 py-2 transition hover:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600"
+          >
+            <span
+              className="h-8 w-8 shrink-0 rounded-lg shadow-inner"
+              style={{ backgroundColor: form.color ?? "#6B7280" }}
             />
-            <span className="text-sm text-neutral-500">{form.color ?? "#6B7280"}</span>
-          </div>
+            <span className="text-sm font-mono text-neutral-600 dark:text-neutral-400">
+              {form.color ?? "#6B7280"}
+            </span>
+            <span className="ml-auto text-xs text-neutral-400">Editar</span>
+          </button>
+          <ColorPickerModal
+            isOpen={isColorPickerOpen}
+            initialColor={form.color ?? "#6B7280"}
+            onSave={(color) => {
+              handleChange("color", color);
+              setIsColorPickerOpen(false);
+            }}
+            onCancel={() => setIsColorPickerOpen(false)}
+          />
         </div>
       </div>
 
