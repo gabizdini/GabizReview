@@ -24,7 +24,7 @@ export function ReviewCard({
   return (
     <Link
       href={`/reviews/${review.id}`}
-      className="group relative block rounded-lg border border-neutral-200 bg-white p-4 transition hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+      className="group relative block rounded-lg border border-neutral-200 bg-white p-4 pr-6 transition hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
     >
       {review.isFavorite && (
         <Heart className="absolute right-3 top-3 h-4 w-4 fill-red-500 text-red-500" aria-label="Queridinho" />
