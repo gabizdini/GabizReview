@@ -31,7 +31,7 @@ export function CollectionCard({ collection, reviewCount }: CollectionCardProps)
       )}
 
       <div className="p-4">
-        <h3 className="font-semibold leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400">
+        <h3 className="truncate font-semibold leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400">
           {collection.name}
         </h3>
         {collection.description && (

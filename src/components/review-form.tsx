@@ -7,6 +7,7 @@ import {
   updateReview,
 } from "@/services/reviews";
 import { getAllCollections } from "@/services/collections";
+import { deleteCurrentlyReading } from "@/services/currently-reading";
 import type {
   Review,
   CreateReviewInput,
@@ -16,11 +17,20 @@ import type { Collection } from "@/types/collection";
 
 interface ReviewFormProps {
   review: Review | null;
+  initialData?: {
+    bookId: string;
+    bookTitle: string;
+    author: string;
+    coverUrl?: string;
+  } | null;
   onSaved: () => void;
   onCancel: () => void;
 }
 
-function buildForm(review: Review | null): CreateReviewInput {
+function buildForm(
+  review: Review | null,
+  initialData?: { bookTitle: string; author: string; coverUrl?: string } | null
+): CreateReviewInput {
   if (review) {
     return {
       title: review.title,
@@ -33,11 +43,23 @@ function buildForm(review: Review | null): CreateReviewInput {
       collectionId: review.collectionId ?? "",
     };
   }
+  if (initialData) {
+    return {
+      title: "",
+      bookTitle: initialData.bookTitle,
+      author: initialData.author,
+      content: "",
+      rating: 3,
+      coverUrl: initialData.coverUrl ?? "",
+      isFavorite: false,
+      collectionId: "",
+    };
+  }
   return { title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, collectionId: "" };
 }
 
-export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
-  const [form, setForm] = useState<CreateReviewInput>(() => buildForm(review));
+export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFormProps) {
+  const [form, setForm] = useState<CreateReviewInput>(() => buildForm(review, initialData));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -75,13 +97,17 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
           collectionId: form.collectionId || undefined,
         };
         await createReview(data);
+        if (initialData?.bookId) {
+          await deleteCurrentlyReading(initialData.bookId).catch(() => {});
+        }
       }
       setSuccess(true);
       if (!review) {
         setForm({ title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, collectionId: "" });
       }
       onSaved();
-    } catch {
+    } catch (err) {
+      console.error("Erro ao salvar review:", err);
       setError("Erro ao salvar review. Tente novamente.");
     } finally {
       setSaving(false);
@@ -103,10 +129,12 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
     >
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor="review-title" className="mb-1 block text-sm font-medium">
             Título do Review (opcional)
           </label>
           <input
+            id="review-title"
+            name="title"
             type="text"
             value={form.title}
             onChange={(e) => handleChange("title", e.target.value)}
@@ -117,10 +145,12 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label htmlFor="review-bookTitle" className="mb-1 block text-sm font-medium">
               Título do Livro <span className="text-red-500">*</span>
             </label>
             <input
+              id="review-bookTitle"
+              name="bookTitle"
               type="text"
               required
               value={form.bookTitle}
@@ -130,8 +160,10 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Autor <span className="text-red-500">*</span></label>
+            <label htmlFor="review-author" className="mb-1 block text-sm font-medium">Autor <span className="text-red-500">*</span></label>
             <input
+              id="review-author"
+              name="author"
               type="text"
               required
               value={form.author}
@@ -143,10 +175,12 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor="review-coverUrl" className="mb-1 block text-sm font-medium">
             URL da Capa (opcional)
           </label>
           <input
+            id="review-coverUrl"
+            name="coverUrl"
             type="url"
             value={form.coverUrl ?? ""}
             onChange={(e) => handleChange("coverUrl", e.target.value)}
@@ -163,9 +197,9 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <span className="mb-1 block text-sm font-medium">
             Nota ({form.rating}/5)
-          </label>
+          </span>
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }, (_, i) => {
               const starValue = i + 1;
@@ -215,10 +249,12 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
 
         {collections.length > 0 && (
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label htmlFor="review-collectionId" className="mb-1 block text-sm font-medium">
               Coleção (opcional)
             </label>
             <select
+              id="review-collectionId"
+              name="collectionId"
               value={form.collectionId ?? ""}
               onChange={(e) => handleChange("collectionId", e.target.value)}
               className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-neutral-700 dark:bg-neutral-800"
@@ -234,10 +270,12 @@ export function ReviewForm({ review, onSaved, onCancel }: ReviewFormProps) {
         )}
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor="review-content" className="mb-1 block text-sm font-medium">
             Conteúdo (opcional)
           </label>
           <textarea
+            id="review-content"
+            name="content"
             rows={8}
             value={form.content}
             onChange={(e) => handleChange("content", e.target.value)}

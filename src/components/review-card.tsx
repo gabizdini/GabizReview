@@ -48,9 +48,9 @@ export function ReviewCard({
             <RatingStars rating={review.rating} />
           </div>
           {collectionName && (
-            <span className="mt-2 inline-flex items-center gap-1 rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
-              <Folder className="h-3 w-3" />
-              {collectionName}
+            <span className="mt-2 inline-flex max-w-full items-center gap-1 rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
+              <Folder className="h-3 w-3 shrink-0" />
+              <span className="truncate">{collectionName}</span>
             </span>
           )}
           {review.title && (

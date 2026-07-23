@@ -31,6 +31,9 @@ export function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-4 text-sm sm:flex">
+          <Link href="/" className={isActive("/")}>
+            Início
+          </Link>
           <Link href="/reviews" className={isActive("/reviews")}>
             Reviews
           </Link>
@@ -98,6 +101,9 @@ export function Navbar() {
             </div>
 
             <div className="px-5 py-4">
+              <Link href="/" className={mobileItemClass} onClick={() => setMenuOpen(false)}>
+                Início
+              </Link>
               <Link href="/reviews" className={mobileItemClass} onClick={() => setMenuOpen(false)}>
                 Reviews
               </Link>

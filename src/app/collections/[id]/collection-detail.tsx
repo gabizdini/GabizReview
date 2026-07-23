@@ -96,8 +96,8 @@ export function CollectionDetail({ id }: { id: string }) {
               <Folder className="h-10 w-10 text-neutral-300 dark:text-neutral-600" />
             </div>
           )}
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+          <div className="min-w-0">
+            <h1 className="break-words text-3xl font-bold tracking-tight">
               {collection.name}
             </h1>
             {collection.description && (

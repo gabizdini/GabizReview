@@ -110,7 +110,7 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
                   {review.bookTitle}
                 </h3>
                 <p className="text-sm text-neutral-500">{review.author}</p>
-                <div className="mt-1 flex items-center gap-2 whitespace-nowrap">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
                   <RatingStars rating={review.rating} />
                   {formatted && (
                     <time className="text-xs text-neutral-400">{formatted}</time>
@@ -118,8 +118,8 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
                   {(() => {
                     const name = getCollectionName(review.collectionId);
                     return name ? (
-                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
-                        {name}
+                      <span className="max-w-full shrink-0 rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-neutral-800">
+                        <span className="block truncate">{name}</span>
                       </span>
                     ) : null;
                   })()}

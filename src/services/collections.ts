@@ -22,6 +22,12 @@ import type { Review } from "@/types/review";
 const COLLECTIONS = "collections";
 const REVIEWS = "reviews";
 
+function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  );
+}
+
 export async function getAllCollections(): Promise<Collection[]> {
   const q = query(
     collection(db, COLLECTIONS),
@@ -43,7 +49,7 @@ export async function createCollection(
   data: CreateCollectionInput
 ): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTIONS), {
-    ...data,
+    ...stripUndefined(data as Record<string, unknown>),
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   });
@@ -55,7 +61,7 @@ export async function updateCollection(
   data: UpdateCollectionInput
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTIONS, id), {
-    ...data,
+    ...stripUndefined(data as Record<string, unknown>),
     updatedAt: Timestamp.now(),
   });
 }

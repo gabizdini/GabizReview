@@ -16,6 +16,12 @@ import type { Review, CreateReviewInput, UpdateReviewInput } from "@/types/revie
 
 const COLLECTION = "reviews";
 
+function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  );
+}
+
 export async function getAllReviews(): Promise<Review[]> {
   const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
@@ -30,7 +36,7 @@ export async function getReviewById(id: string): Promise<Review | null> {
 
 export async function createReview(data: CreateReviewInput): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTION), {
-    ...data,
+    ...stripUndefined(data as Record<string, unknown>),
     isFavorite: data.isFavorite ?? false,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
@@ -45,7 +51,7 @@ export async function updateReview(
   data: UpdateReviewInput
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTION, id), {
-    ...data,
+    ...stripUndefined(data as Record<string, unknown>),
     updatedAt: Timestamp.now(),
   });
 }

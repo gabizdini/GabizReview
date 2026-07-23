@@ -90,10 +90,12 @@ export function CollectionForm({
     >
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor="collection-name" className="mb-1 block text-sm font-medium">
             Nome da Coleção <span className="text-red-500">*</span>
           </label>
           <input
+            id="collection-name"
+            name="name"
             type="text"
             required
             value={form.name}
@@ -104,10 +106,12 @@ export function CollectionForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor="collection-description" className="mb-1 block text-sm font-medium">
             Descrição (opcional)
           </label>
           <textarea
+            id="collection-description"
+            name="description"
             rows={3}
             value={form.description ?? ""}
             onChange={(e) => handleChange("description", e.target.value)}
@@ -117,10 +121,12 @@ export function CollectionForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">
+          <label htmlFor="collection-coverUrl" className="mb-1 block text-sm font-medium">
             URL da Capa (opcional)
           </label>
           <input
+            id="collection-coverUrl"
+            name="coverUrl"
             type="url"
             value={form.coverUrl ?? ""}
             onChange={(e) => handleChange("coverUrl", e.target.value)}
