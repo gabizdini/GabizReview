@@ -1,7 +1,6 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { adminAuth } from "@/config/firebase-admin";
 
 export interface AdminValidationResult {
   authorized: boolean;
@@ -12,13 +11,43 @@ export interface AdminValidationResult {
 const SESSION_COOKIE_NAME = "admin-session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
+interface LookupUser {
+  localId: string;
+  email?: string;
+}
+
+async function lookupUser(idToken: string): Promise<LookupUser | null> {
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  if (!apiKey) return null;
+
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+      cache: "no-store",
+    }
+  );
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const user = data?.users?.[0];
+  if (!user) return null;
+
+  return { localId: user.localId, email: user.email };
+}
+
 export async function validateAdmin(
   idToken: string
 ): Promise<AdminValidationResult> {
   try {
-    const decodedToken = await adminAuth.verifyIdToken(idToken);
-    const email = decodedToken.email;
+    const user = await lookupUser(idToken);
+    if (!user) {
+      return { authorized: false, error: "Token inválido" };
+    }
 
+    const email = user.email;
     if (!email) {
       return { authorized: false, error: "Token sem email" };
     }
@@ -33,7 +62,7 @@ export async function validateAdmin(
     }
 
     const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE_NAME, decodedToken.uid, {
+    cookieStore.set(SESSION_COOKIE_NAME, user.localId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -43,24 +72,11 @@ export async function validateAdmin(
 
     return { authorized: true, email };
   } catch {
-    return { authorized: false, error: "Token inválido" };
+    return { authorized: false, error: "Erro ao verificar permissões" };
   }
 }
 
 export async function clearAdminSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE_NAME);
-}
-
-export async function isAdminSessionValid(): Promise<boolean> {
-  try {
-    const cookieStore = await cookies();
-    const session = cookieStore.get(SESSION_COOKIE_NAME);
-    if (!session?.value) return false;
-
-    await adminAuth.getUser(session.value);
-    return true;
-  } catch {
-    return false;
-  }
 }
