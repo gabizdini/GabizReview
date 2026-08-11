@@ -1,0 +1,6 @@
+{
+  "project": "gabizreview",
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}
