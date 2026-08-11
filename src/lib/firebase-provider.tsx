@@ -9,6 +9,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth } from "@/config/firebase";
+import { clearAdminSession } from "@/app/admin/actions";
 
 interface AuthContextValue {
   user: User | null;
@@ -38,6 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
+    try {
+      await clearAdminSession();
+    } catch {
+      // Cookie será limpo na próxima requisição ao admin
+    }
   };
 
   return (

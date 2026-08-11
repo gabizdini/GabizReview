@@ -19,15 +19,11 @@ async function isValidSession(request: NextRequest): Promise<boolean> {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const validSession = await isValidSession(request);
 
-    if (!validSession && pathname !== "/admin/login") {
+    if (!validSession) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
-
-    if (validSession && pathname === "/admin/login") {
-      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
 

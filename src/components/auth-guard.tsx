@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/firebase-provider";
 import { auth } from "@/config/firebase";
 import { signOut } from "firebase/auth";
-import { validateAdmin } from "@/app/admin/actions";
+import { validateAdmin, clearAdminSession } from "@/app/admin/actions";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -38,6 +38,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loading && user && isAdmin === false) {
       signOut(auth);
+      clearAdminSession();
     }
   }, [loading, user, isAdmin]);
 

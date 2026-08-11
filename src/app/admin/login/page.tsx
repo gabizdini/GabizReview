@@ -3,36 +3,68 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase-provider";
-import { auth } from "@/config/firebase";
-import { signOut } from "firebase/auth";
 import { validateAdmin } from "../actions";
 
 export default function AdminLoginPage() {
-  const { signInWithGoogle, user, loading } = useAuth();
+  const { signInWithGoogle, user, loading, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
+  const [denied, setDenied] = useState<{
+    uid: string;
+    email: string;
+    reason?: string;
+  } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (loading || !user) return;
 
-    const checkAdmin = async () => {
-      try {
-        const idToken = await user.getIdToken();
-        const result = await validateAdmin(idToken);
-        if (result.authorized) {
-          router.replace("/admin");
-        }
-      } catch {
-        // Not admin or error
-      }
-    };
+    let cancelled = false;
 
-    checkAdmin();
+    user
+      .getIdToken()
+      .then((idToken) => {
+        validateAdmin(idToken)
+          .then((result) => {
+            if (cancelled) return;
+            if (result.authorized) {
+              router.replace("/admin");
+            } else {
+              setDenied({
+                uid: user.uid,
+                email: user.email ?? "",
+                reason: result.error,
+              });
+            }
+          })
+          .catch(() => {
+            if (!cancelled) {
+              setDenied({
+                uid: user.uid,
+                email: user.email ?? "",
+                reason: "Erro ao verificar permissões",
+              });
+            }
+          });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDenied({
+            uid: user.uid,
+            email: user.email ?? "",
+            reason: "Erro ao obter token",
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user, loading, router]);
 
   const handleLogin = async () => {
     setError(null);
+    setDenied(null);
     setSigningIn(true);
     try {
       await signInWithGoogle();
@@ -53,14 +85,25 @@ export default function AdminLoginPage() {
     );
   }
 
-  if (user) {
+  if (user && denied?.uid !== user.uid) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-neutral-400">Verificando permissões...</p>
+      </div>
+    );
+  }
+
+  if (user && denied?.uid === user.uid) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6">
         <p className="text-lg font-medium text-red-600">
-          Acesso negado. E-mail não autorizado: {user.email}
+          Acesso negado. E-mail não autorizado: {denied.email}
         </p>
+        {denied.reason && (
+          <p className="text-sm text-neutral-500">({denied.reason})</p>
+        )}
         <button
-          onClick={() => signOut(auth)}
+          onClick={logout}
           className="text-sm text-blue-600 hover:underline"
         >
           Fazer logout
