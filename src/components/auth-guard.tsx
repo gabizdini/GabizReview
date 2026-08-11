@@ -1,34 +1,47 @@
 "use client";
 
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, useRef, useState, startTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/firebase-provider";
 import { auth } from "@/config/firebase";
 import { signOut } from "firebase/auth";
+import { validateAdmin } from "@/app/admin/actions";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const checkingRef = useRef(false);
 
-  const state = useMemo(() => {
-    if (loading) return "loading" as const;
-    if (!user) return "unauthenticated" as const;
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    if (user.email !== adminEmail) return "unauthorized" as const;
-    return "authorized" as const;
+  useEffect(() => {
+    if (loading || !user) return;
+    if (checkingRef.current) return;
+    checkingRef.current = true;
+
+    user.getIdToken().then((idToken) => {
+      validateAdmin(idToken).then((result) => {
+        startTransition(() => {
+          setIsAdmin(result.authorized);
+        });
+        checkingRef.current = false;
+      });
+    });
   }, [user, loading]);
 
   useEffect(() => {
-    if (state === "unauthenticated") {
+    if (!loading && !user) {
       router.replace("/admin/login");
     }
-    if (state === "unauthorized") {
+  }, [loading, user, router]);
+
+  useEffect(() => {
+    if (!loading && user && isAdmin === false) {
       signOut(auth);
     }
-  }, [state, router]);
+  }, [loading, user, isAdmin]);
 
-  if (state === "loading") {
+  if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <p className="text-neutral-400">Carregando...</p>
@@ -36,7 +49,17 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     );
   }
 
-  if (state === "unauthorized") {
+  if (!user) return null;
+
+  if (isAdmin === null) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <p className="text-neutral-400">Verificando permissões...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
         <p className="text-lg font-medium text-red-600">
@@ -48,8 +71,6 @@ export function AuthGuard({ children }: { children: ReactNode }) {
       </div>
     );
   }
-
-  if (state === "unauthenticated") return null;
 
   return <>{children}</>;
 }

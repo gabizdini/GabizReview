@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/firebase-provider";
 import { auth } from "@/config/firebase";
 import { signOut } from "firebase/auth";
+import { validateAdmin } from "../actions";
 
 export default function AdminLoginPage() {
   const { signInWithGoogle, user, loading } = useAuth();
@@ -14,10 +15,20 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (loading || !user) return;
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    if (user.email === adminEmail) {
-      router.replace("/admin");
-    }
+
+    const checkAdmin = async () => {
+      try {
+        const idToken = await user.getIdToken();
+        const result = await validateAdmin(idToken);
+        if (result.authorized) {
+          router.replace("/admin");
+        }
+      } catch {
+        // Not admin or error
+      }
+    };
+
+    checkAdmin();
   }, [user, loading, router]);
 
   const handleLogin = async () => {
@@ -43,16 +54,8 @@ export default function AdminLoginPage() {
   }
 
   if (user) {
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    if (user.email === adminEmail) {
-      return (
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <p className="text-neutral-400">Redirecionando...</p>
-        </div>
-      );
-    }
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-6">
         <p className="text-lg font-medium text-red-600">
           Acesso negado. E-mail não autorizado: {user.email}
         </p>
