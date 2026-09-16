@@ -21,9 +21,13 @@ export function ReviewDetail({ id }: { id: string }) {
   useEffect(() => {
     getReviewById(id)
       .then((r) => {
-        setReview(r);
-        if (r?.collectionId) {
-          getCollectionById(r.collectionId).then(setCollection);
+        if (r?.isDraft) {
+          setError("Review não encontrado.");
+        } else {
+          setReview(r);
+          if (r?.collectionId) {
+            getCollectionById(r.collectionId).then(setCollection);
+          }
         }
       })
       .catch(() => setError("Review não encontrado."))

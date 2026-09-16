@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FileText, BookOpen, Heart, Trash2 } from "lucide-react";
 import { useAuth } from "@/lib/firebase-provider";
 import { AuthGuard } from "@/components/auth-guard";
 import { ReviewForm } from "@/components/review-form";
@@ -9,6 +10,17 @@ import { CollectionForm } from "@/components/collection-form";
 import { CollectionList } from "@/components/collection-list";
 import { CurrentlyReadingForm } from "@/components/currently-reading-form";
 import { CurrentlyReadingList } from "@/components/currently-reading-admin-list";
+import { RatingStars } from "@/components/rating-stars";
+import {
+  getDraftReviews,
+  deleteReview,
+  updateReview,
+} from "@/services/reviews";
+import {
+  getDraftCurrentlyReading,
+  deleteCurrentlyReading,
+  updateCurrentlyReading,
+} from "@/services/currently-reading";
 import type { Review } from "@/types/review";
 import type { Collection } from "@/types/collection";
 import type { CurrentlyReading } from "@/types/currently-reading";
@@ -39,7 +51,23 @@ export default function AdminPage() {
     coverUrl?: string;
   } | null>(null);
 
-  const handleReviewSaved = () => {
+  const [reviewDrafts, setReviewDrafts] = useState<Review[]>([]);
+  const [showReviewDrafts, setShowReviewDrafts] = useState(false);
+  const [publishingReview, setPublishingReview] = useState<string | null>(null);
+
+  const [bookDrafts, setBookDrafts] = useState<CurrentlyReading[]>([]);
+  const [showBookDrafts, setShowBookDrafts] = useState(false);
+  const [publishingBook, setPublishingBook] = useState<string | null>(null);
+
+  useEffect(() => {
+    getDraftReviews().then(setReviewDrafts).catch(() => {});
+  }, [reviewRefreshKey]);
+
+  useEffect(() => {
+    getDraftCurrentlyReading().then(setBookDrafts).catch(() => {});
+  }, [bookRefreshKey]);
+
+  const handleReviewSaved = (asDraft?: boolean) => {
     setEditingReview(null);
     setShowReviewForm(false);
     setReviewInitialData(null);
@@ -62,6 +90,30 @@ export default function AdminPage() {
     setEditingReview(null);
     setShowReviewForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePublishReview = async (id: string) => {
+    setPublishingReview(id);
+    try {
+      await updateReview(id, { isDraft: false });
+      setReviewDrafts((prev) => prev.filter((r) => r.id !== id));
+      setReviewRefreshKey((k) => k + 1);
+    } catch {
+      alert("Erro ao publicar review.");
+    } finally {
+      setPublishingReview(null);
+    }
+  };
+
+  const handleDeleteReviewDraft = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este rascunho?")) return;
+    try {
+      await deleteReview(id);
+      setReviewDrafts((prev) => prev.filter((r) => r.id !== id));
+      setReviewRefreshKey((k) => k + 1);
+    } catch {
+      alert("Erro ao excluir rascunho.");
+    }
   };
 
   const handleCollectionSaved = () => {
@@ -87,7 +139,7 @@ export default function AdminPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleBookSaved = () => {
+  const handleBookSaved = (asDraft?: boolean) => {
     setEditingBook(null);
     setShowBookForm(false);
     setBookRefreshKey((k) => k + 1);
@@ -120,6 +172,30 @@ export default function AdminPage() {
     setTab("reviews");
     setShowReviewForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePublishBook = async (id: string) => {
+    setPublishingBook(id);
+    try {
+      await updateCurrentlyReading(id, { isDraft: false });
+      setBookDrafts((prev) => prev.filter((b) => b.id !== id));
+      setBookRefreshKey((k) => k + 1);
+    } catch {
+      alert("Erro ao publicar livro.");
+    } finally {
+      setPublishingBook(null);
+    }
+  };
+
+  const handleDeleteBookDraft = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este rascunho?")) return;
+    try {
+      await deleteCurrentlyReading(id);
+      setBookDrafts((prev) => prev.filter((b) => b.id !== id));
+      setBookRefreshKey((k) => k + 1);
+    } catch {
+      alert("Erro ao excluir rascunho.");
+    }
   };
 
   return (
@@ -180,12 +256,101 @@ export default function AdminPage() {
                 />
               </div>
             ) : (
-              <button
-                onClick={handleNewReview}
-                className="mb-8 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-              >
-                + Novo Review
-              </button>
+              <div className="mb-8 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleNewReview}
+                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                >
+                  + Novo Review
+                </button>
+                <button
+                  onClick={() => setShowReviewDrafts((prev) => !prev)}
+                  className={`flex items-center gap-1.5 rounded-md border px-4 py-2 text-sm font-medium transition ${
+                    showReviewDrafts
+                      ? "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-700 dark:bg-violet-950/50 dark:text-violet-400"
+                      : "border-neutral-300 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                  }`}
+                >
+                  <FileText className="h-4 w-4" />
+                  Rascunhos ({reviewDrafts.length})
+                </button>
+              </div>
+            )}
+
+            {showReviewDrafts && reviewDrafts.length > 0 && (
+              <div className="mb-8 rounded-lg border border-violet-200 bg-violet-50/50 p-4 dark:border-violet-900/50 dark:bg-violet-950/20">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-violet-800 dark:text-violet-300">
+                  <FileText className="h-4 w-4" />
+                  Rascunhos Salvos
+                </h3>
+                <div className="space-y-2">
+                  {reviewDrafts.map((draft) => {
+                    const date = draft.createdAt?.toDate?.();
+                    const formatted = date
+                      ? new Intl.DateTimeFormat("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }).format(date)
+                      : "";
+                    return (
+                      <div
+                        key={draft.id}
+                        className="flex items-center justify-between gap-3 rounded-md border border-violet-200/50 bg-white p-3 dark:border-violet-800/30 dark:bg-neutral-900"
+                      >
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          {draft.coverUrl && (
+                            <img
+                              src={draft.coverUrl}
+                              alt={`Capa de ${draft.bookTitle}`}
+                              className="h-10 w-8 shrink-0 rounded object-cover"
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <h4 className="truncate text-sm font-medium">
+                              {draft.bookTitle}
+                            </h4>
+                            <p className="truncate text-xs text-neutral-500">
+                              {draft.author}
+                            </p>
+                            <div className="mt-0.5 flex items-center gap-2">
+                              <RatingStars rating={draft.rating} />
+                              {formatted && (
+                                <time className="text-xs text-neutral-400">
+                                  {formatted}
+                                </time>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            onClick={() => handlePublishReview(draft.id)}
+                            disabled={publishingReview === draft.id}
+                            className="rounded-md border border-green-300 px-3 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 disabled:opacity-50 dark:border-green-800 dark:hover:bg-green-950"
+                          >
+                            {publishingReview === draft.id
+                              ? "..."
+                              : "Publicar"}
+                          </button>
+                          <button
+                            onClick={() => handleReviewEdit(draft)}
+                            className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReviewDraft(draft.id)}
+                            className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
 
             <div>
@@ -246,12 +411,100 @@ export default function AdminPage() {
                 />
               </div>
             ) : (
-              <button
-                onClick={handleNewBook}
-                className="mb-8 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-              >
-                + Novo Livro
-              </button>
+              <div className="mb-8 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleNewBook}
+                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                >
+                  + Novo Livro
+                </button>
+                <button
+                  onClick={() => setShowBookDrafts((prev) => !prev)}
+                  className={`flex items-center gap-1.5 rounded-md border px-4 py-2 text-sm font-medium transition ${
+                    showBookDrafts
+                      ? "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-700 dark:bg-violet-950/50 dark:text-violet-400"
+                      : "border-neutral-300 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                  }`}
+                >
+                  <FileText className="h-4 w-4" />
+                  Rascunhos ({bookDrafts.length})
+                </button>
+              </div>
+            )}
+
+            {showBookDrafts && bookDrafts.length > 0 && (
+              <div className="mb-8 rounded-lg border border-violet-200 bg-violet-50/50 p-4 dark:border-violet-900/50 dark:bg-violet-950/20">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-violet-800 dark:text-violet-300">
+                  <FileText className="h-4 w-4" />
+                  Rascunhos Salvos
+                </h3>
+                <div className="space-y-2">
+                  {bookDrafts.map((draft) => {
+                    const date = draft.createdAt?.toDate?.();
+                    const formatted = date
+                      ? new Intl.DateTimeFormat("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }).format(date)
+                      : "";
+                    return (
+                      <div
+                        key={draft.id}
+                        className="flex items-center justify-between gap-3 rounded-md border border-violet-200/50 bg-white p-3 dark:border-violet-800/30 dark:bg-neutral-900"
+                      >
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          {draft.coverUrl ? (
+                            <img
+                              src={draft.coverUrl}
+                              alt={`Capa de ${draft.bookTitle}`}
+                              className="h-10 w-8 shrink-0 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-10 w-8 shrink-0 items-center justify-center rounded bg-neutral-100 dark:bg-neutral-800">
+                              <BookOpen className="h-4 w-4 text-neutral-400" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <h4 className="truncate text-sm font-medium">
+                              {draft.bookTitle}
+                            </h4>
+                            <p className="truncate text-xs text-neutral-500">
+                              {draft.author}
+                            </p>
+                            {formatted && (
+                              <time className="text-xs text-neutral-400">
+                                {formatted}
+                              </time>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            onClick={() => handlePublishBook(draft.id)}
+                            disabled={publishingBook === draft.id}
+                            className="rounded-md border border-green-300 px-3 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 disabled:opacity-50 dark:border-green-800 dark:hover:bg-green-950"
+                          >
+                            {publishingBook === draft.id ? "..." : "Publicar"}
+                          </button>
+                          <button
+                            onClick={() => handleBookEdit(draft)}
+                            className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBookDraft(draft.id)}
+                            className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
 
             <div>

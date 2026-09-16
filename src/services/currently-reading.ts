@@ -32,11 +32,22 @@ export async function getAllCurrentlyReading(): Promise<CurrentlyReading[]> {
   );
 }
 
+export async function getPublishedCurrentlyReading(): Promise<CurrentlyReading[]> {
+  const all = await getAllCurrentlyReading();
+  return all.filter((b) => b.isDraft !== true);
+}
+
+export async function getDraftCurrentlyReading(): Promise<CurrentlyReading[]> {
+  const all = await getAllCurrentlyReading();
+  return all.filter((b) => b.isDraft === true);
+}
+
 export async function createCurrentlyReading(
   data: CreateCurrentlyReadingInput
 ): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTION), {
     ...stripUndefined(data as Record<string, unknown>),
+    isDraft: data.isDraft ?? false,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   });

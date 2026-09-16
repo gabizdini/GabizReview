@@ -32,7 +32,7 @@ export function ReviewList() {
   useEffect(() => {
     Promise.all([getAllReviews(), getAllCollections()])
       .then(([reviewsData, cols]) => {
-        setReviews(reviewsData);
+        setReviews(reviewsData.filter((r) => r.isDraft !== true));
         const map: Record<string, string> = {};
         cols.forEach((c) => { map[c.id] = c.name; });
         setCollectionsMap(map);

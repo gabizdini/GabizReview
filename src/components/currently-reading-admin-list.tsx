@@ -163,7 +163,7 @@ export function CurrentlyReadingList({
     getAllCurrentlyReading()
       .then((data) => {
         if (!cancelled) {
-          setBooks(data);
+          setBooks(data.filter((b) => b.isDraft !== true));
           setLoading(false);
         }
       })

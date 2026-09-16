@@ -12,7 +12,7 @@ export function CurrentlyReadingSection() {
 
   useEffect(() => {
     getAllCurrentlyReading()
-      .then(setBooks)
+      .then((data) => setBooks(data.filter((b) => b.isDraft !== true)))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

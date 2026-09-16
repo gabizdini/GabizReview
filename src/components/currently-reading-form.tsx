@@ -14,7 +14,7 @@ import type {
 
 interface CurrentlyReadingFormProps {
   book: CurrentlyReading | null;
-  onSaved: () => void;
+  onSaved: (asDraft?: boolean) => void;
   onCancel: () => void;
 }
 
@@ -26,9 +26,10 @@ function buildForm(book: CurrentlyReading | null): CreateCurrentlyReadingInput {
       coverUrl: book.coverUrl ?? "",
       progress: book.progress,
       order: book.order,
+      isDraft: book.isDraft ?? false,
     };
   }
-  return { bookTitle: "", author: "", coverUrl: "", progress: 0, order: 0 };
+  return { bookTitle: "", author: "", coverUrl: "", progress: 0, order: 0, isDraft: false };
 }
 
 function getProgressColor(progress: number): string {
@@ -49,7 +50,7 @@ export function CurrentlyReadingForm({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent, asDraft = false) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
@@ -63,20 +64,22 @@ export function CurrentlyReadingForm({
           coverUrl: form.coverUrl || undefined,
           progress: form.progress,
           order: form.order,
+          isDraft: asDraft,
         };
         await updateCurrentlyReading(book.id, data);
       } else {
         const data: CreateCurrentlyReadingInput = {
           ...form,
+          isDraft: asDraft,
           coverUrl: form.coverUrl || undefined,
         };
         await createCurrentlyReading(data);
       }
       setSuccess(true);
       if (!book) {
-        setForm({ bookTitle: "", author: "", coverUrl: "", progress: 0, order: 0 });
+        setForm({ bookTitle: "", author: "", coverUrl: "", progress: 0, order: 0, isDraft: false });
       }
-      onSaved();
+      onSaved(asDraft);
     } catch {
       setError("Erro ao salvar. Tente novamente.");
     } finally {
@@ -94,9 +97,16 @@ export function CurrentlyReadingForm({
   return (
     <form
       key={book?.id ?? "new"}
-      onSubmit={handleSubmit}
+      onSubmit={(e) => handleSubmit(e, false)}
       className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
     >
+      {book?.isDraft && (
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+          Rascunho
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -185,7 +195,7 @@ export function CurrentlyReadingForm({
         </p>
       )}
 
-      <div className="mt-4 flex gap-3">
+      <div className="mt-4 flex flex-wrap gap-3">
         <button
           type="submit"
           disabled={saving}
@@ -197,6 +207,26 @@ export function CurrentlyReadingForm({
               ? "Salvar Alterações"
               : "Adicionar Livro"}
         </button>
+
+        <button
+          type="button"
+          disabled={saving}
+          onClick={(e) => handleSubmit(e as unknown as FormEvent, true)}
+          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800 disabled:opacity-50"
+        >
+          {book?.isDraft ? "Salvar Rascunho" : "Salvar como Rascunho"}
+        </button>
+
+        {book?.isDraft && (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={(e) => handleSubmit(e as unknown as FormEvent, false)}
+            className="rounded-md border border-green-300 px-4 py-2 text-sm font-medium text-green-600 transition hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-950 disabled:opacity-50"
+          >
+            Publicar
+          </button>
+        )}
 
         <button
           type="button"

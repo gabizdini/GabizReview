@@ -24,7 +24,7 @@ export function AdminReviewList({ onEdit, refreshKey }: AdminReviewListProps) {
     Promise.all([getAllReviews(), getAllCollections()])
       .then(([reviewsData, collectionsData]) => {
         if (!cancelled) {
-          setReviews(reviewsData);
+          setReviews(reviewsData.filter((r) => r.isDraft !== true));
           setCollections(collectionsData);
           setLoading(false);
         }

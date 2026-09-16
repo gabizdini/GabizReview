@@ -23,7 +23,7 @@ interface ReviewFormProps {
     author: string;
     coverUrl?: string;
   } | null;
-  onSaved: () => void;
+  onSaved: (asDraft?: boolean) => void;
   onCancel: () => void;
 }
 
@@ -40,6 +40,7 @@ function buildForm(
       rating: review.rating,
       coverUrl: review.coverUrl ?? "",
       isFavorite: review.isFavorite,
+      isDraft: review.isDraft ?? false,
       collectionId: review.collectionId ?? "",
     };
   }
@@ -52,10 +53,11 @@ function buildForm(
       rating: 3,
       coverUrl: initialData.coverUrl ?? "",
       isFavorite: false,
+      isDraft: false,
       collectionId: "",
     };
   }
-  return { title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, collectionId: "" };
+  return { title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, isDraft: false, collectionId: "" };
 }
 
 export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFormProps) {
@@ -71,7 +73,7 @@ export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFor
       .catch(() => {});
   }, []);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent, asDraft = false) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
@@ -87,25 +89,27 @@ export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFor
           rating: form.rating,
           coverUrl: form.coverUrl || undefined,
           isFavorite: form.isFavorite,
+          isDraft: asDraft,
           collectionId: form.collectionId || undefined,
         };
         await updateReview(review.id, data);
       } else {
         const data: CreateReviewInput = {
           ...form,
+          isDraft: asDraft,
           coverUrl: form.coverUrl || undefined,
           collectionId: form.collectionId || undefined,
         };
         await createReview(data);
-        if (initialData?.bookId) {
+        if (!asDraft && initialData?.bookId) {
           await deleteCurrentlyReading(initialData.bookId).catch(() => {});
         }
       }
       setSuccess(true);
       if (!review) {
-        setForm({ title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, collectionId: "" });
+        setForm({ title: "", bookTitle: "", author: "", content: "", rating: 3, coverUrl: "", isFavorite: false, isDraft: false, collectionId: "" });
       }
-      onSaved();
+      onSaved(asDraft);
     } catch (err) {
       console.error("Erro ao salvar review:", err);
       setError("Erro ao salvar review. Tente novamente.");
@@ -124,9 +128,16 @@ export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFor
   return (
     <form
       key={review?.id ?? "new"}
-      onSubmit={handleSubmit}
+      onSubmit={(e) => handleSubmit(e, false)}
       className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
     >
+      {review?.isDraft && (
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+          Rascunho
+        </div>
+      )}
+
       <div className="space-y-4">
         <div>
           <label htmlFor="review-title" className="mb-1 block text-sm font-medium">
@@ -292,7 +303,7 @@ export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFor
         </p>
       )}
 
-      <div className="mt-4 flex gap-3">
+      <div className="mt-4 flex flex-wrap gap-3">
         <button
           type="submit"
           disabled={saving}
@@ -304,6 +315,26 @@ export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFor
               ? "Salvar Alterações"
               : "Criar Review"}
         </button>
+
+        <button
+          type="button"
+          disabled={saving}
+          onClick={(e) => handleSubmit(e as unknown as FormEvent, true)}
+          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800 disabled:opacity-50"
+        >
+          {review?.isDraft ? "Salvar Rascunho" : "Salvar como Rascunho"}
+        </button>
+
+        {review?.isDraft && (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={(e) => handleSubmit(e as unknown as FormEvent, false)}
+            className="rounded-md border border-green-300 px-4 py-2 text-sm font-medium text-green-600 transition hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-950 disabled:opacity-50"
+          >
+            Publicar
+          </button>
+        )}
 
         <button
           type="button"

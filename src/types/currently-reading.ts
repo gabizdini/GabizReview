@@ -7,6 +7,7 @@ export interface CurrentlyReading {
   coverUrl?: string;
   progress: number;
   order: number;
+  isDraft?: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

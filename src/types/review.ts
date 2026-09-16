@@ -9,6 +9,7 @@ export interface Review {
   rating: number;
   coverUrl?: string;
   isFavorite: boolean;
+  isDraft?: boolean;
   collectionId?: string;
   collectionOrder?: number;
   createdAt: Timestamp;

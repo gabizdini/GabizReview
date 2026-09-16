@@ -9,6 +9,7 @@ import {
   deleteDoc,
   query,
   orderBy,
+  where,
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/config/firebase";
@@ -34,10 +35,27 @@ export async function getReviewById(id: string): Promise<Review | null> {
   return { id: snap.id, ...snap.data() } as Review;
 }
 
+export async function getPublishedReviews(): Promise<Review[]> {
+  const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((d) => ({ id: d.id, ...d.data() } as Review))
+    .filter((r) => r.isDraft !== true);
+}
+
+export async function getDraftReviews(): Promise<Review[]> {
+  const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs
+    .map((d) => ({ id: d.id, ...d.data() } as Review))
+    .filter((r) => r.isDraft === true);
+}
+
 export async function createReview(data: CreateReviewInput): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTION), {
     ...stripUndefined(data as Record<string, unknown>),
     isFavorite: data.isFavorite ?? false,
+    isDraft: data.isDraft ?? false,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
     likesCount: 0,
