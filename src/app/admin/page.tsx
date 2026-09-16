@@ -307,44 +307,51 @@ export default function AdminPage() {
                             />
                           )}
                           <div className="min-w-0 flex-1">
-                            <h4 className="truncate text-sm font-medium">
-                              {draft.bookTitle}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <h4 className="truncate text-sm font-medium">
+                                {draft.bookTitle}
+                              </h4>
+                              <span className="hidden sm:block">
+                                <RatingStars rating={draft.rating} size="sm" />
+                              </span>
+                            </div>
                             <p className="truncate text-xs text-neutral-500">
                               {draft.author}
                             </p>
-                            <div className="mt-0.5 flex items-center gap-2">
-                              <RatingStars rating={draft.rating} />
-                              {formatted && (
-                                <time className="text-xs text-neutral-400">
-                                  {formatted}
-                                </time>
-                              )}
-                            </div>
+                            {formatted && (
+                              <time className="text-xs text-neutral-400">
+                                {formatted}
+                              </time>
+                            )}
                           </div>
                         </div>
-                        <div className="flex shrink-0 gap-2">
-                          <button
-                            onClick={() => handlePublishReview(draft.id)}
-                            disabled={publishingReview === draft.id}
-                            className="rounded-md border border-green-300 px-3 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 disabled:opacity-50 dark:border-green-800 dark:hover:bg-green-950"
-                          >
-                            {publishingReview === draft.id
-                              ? "..."
-                              : "Publicar"}
-                          </button>
-                          <button
-                            onClick={() => handleReviewEdit(draft)}
-                            className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteReviewDraft(draft.id)}
-                            className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                        <div className="flex shrink-0 flex-col items-center gap-1.5">
+                          <span className="sm:hidden">
+                            <RatingStars rating={draft.rating} size="sm" />
+                          </span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handlePublishReview(draft.id)}
+                              disabled={publishingReview === draft.id}
+                              className="rounded-md border border-green-300 px-3 py-1.5 text-xs font-medium text-green-600 transition hover:bg-green-50 disabled:opacity-50 dark:border-green-800 dark:hover:bg-green-950"
+                            >
+                              {publishingReview === draft.id
+                                ? "..."
+                                : "Publicar"}
+                            </button>
+                            <button
+                              onClick={() => handleReviewEdit(draft)}
+                              className="rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium transition hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => handleDeleteReviewDraft(draft.id)}
+                              className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
