@@ -132,8 +132,8 @@ export function ReviewForm({ review, initialData, onSaved, onCancel }: ReviewFor
       className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
     >
       {review?.isDraft && (
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 dark:bg-violet-900/30 dark:text-violet-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
           Rascunho
         </div>
       )}
